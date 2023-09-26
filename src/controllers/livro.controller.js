@@ -9,7 +9,8 @@ class LivroController {
       res.status(200).json(listaLivros);
     } catch (erro) {
       next(erro);
-    }        
+    }
+            
   }
 
   static async listarLivroPorId (req, res, next) {

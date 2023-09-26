@@ -1,15 +1,15 @@
 import { autor } from "../models/Autor.js";
+import NaoEncontrado from "../erros/naoEncontrado404.js";
 
 class AutorController {
 
-  static async listarAutores (req, res) {
+  static async listarAutores (req, res, next) {
     try {
       const listaAutores = await autor.find({});
       res.status(200).json(listaAutores);
     } catch (erro) {
-      res.status(500).json({ mnessage: `${erro.message} - Erro interno no servidor.` });
-    }
-        
+      next(erro);
+    }        
   }
 
   static async listarAutorPorId (req, res, next) {
@@ -20,7 +20,7 @@ class AutorController {
       if(autorEncontrado !== null) {
         res.status(200).send(autorEncontrado);
       } else {
-        res.status(404).json({ mnessage: "Id do autor não encontrado." });
+        next(new NaoEncontrado("Id do autor não localizado."));
       }
     } catch (erro) {
       next(erro);
