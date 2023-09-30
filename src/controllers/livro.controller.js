@@ -5,9 +5,10 @@ class LivroController {
 
   static async listarLivros (req, res, next) {
     try {
-      const listaLivros = await livro.find({});
-      res.status(200).json(listaLivros);
-    } catch (erro) {
+      const buscaLivros = livro.find();
+      req.resultado = buscaLivros;
+      next();
+    }catch (erro) {
       next(erro);
     }            
   }
@@ -17,19 +18,19 @@ class LivroController {
       const id = req.params.id;
       const livroEncontrado = await livro.findById(id);
       res.status(200).json(livroEncontrado);
-    } catch (erro) {
+    }catch (erro) {
       next(erro);
     }        
   }
 
   static async cadastrarLivro (req, res, next) {
     const novoLivro = req.body;
-    try{
+    try {
       const autorEncontrado = await autor.findById(novoLivro.autor);
       const livroCompleto = { ...novoLivro, autor: { ...autorEncontrado._doc } };
       const livroCriado = await livro.create(livroCompleto);
       res.status(201).json({ message: "Criado com sucesso!", livro: livroCriado });
-    } catch (erro) {
+    }catch (erro) {
       next(erro);
     } 
   }
@@ -39,7 +40,7 @@ class LivroController {
       const id = req.params.id;
       await livro.findByIdAndUpdate(id, req.body);
       res.status(200).json({ message: "Livro atualizado!" });
-    } catch (erro) {
+    }catch (erro) {
       next(erro);
     }        
   }
@@ -58,11 +59,12 @@ class LivroController {
     const busca = await processaBusca(req.query);
     try {      
       if(busca !== null) {
-        const livrosPorEditora = await livro
+        const livrosResultado = livro
           .find(busca)
           .populate("autor");
-        res.status(200).json(livrosPorEditora);
-      } else {
+        req.resultado = livrosResultado;
+        next();
+      }else {
         res.status(200).send([]);
       }      
     } catch (erro) {
@@ -99,7 +101,7 @@ async function processaBusca(parametros) {
     if(autorN !== null) {
       busca.autor = autorN._id;
       console.log(busca.autor, "!!!!!!!!!!!");
-    } else {
+    }else {
       busca = null;
     }
   }
